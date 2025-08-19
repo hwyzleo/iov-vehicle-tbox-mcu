@@ -38,10 +38,31 @@ bool McuClient::init() {
     }
     std::string old_vin = hwyz::Utils::global_read_string(hwyz::global_key_t::VIN);
     if (old_vin.empty() || old_vin != new_vin) {
-        if (old_vin != new_vin) {
+        if (!old_vin.empty() && old_vin != new_vin) {
             spdlog::warn("车架号发生变更[{}->{}]", old_vin, new_vin);
         }
         hwyz::Utils::global_write_string(hwyz::global_key_t::VIN, new_vin);
+    }
+    std::string new_iccid;
+    if (!get_current_iccid(new_iccid)) {
+        spdlog::error("获取当前ICCID失败");
+        return false;
+    }
+    std::string old_iccid = hwyz::Utils::global_read_string(hwyz::global_key_t::CURRENT_ICCID);
+    if (old_iccid.empty() || old_iccid != new_iccid) {
+        hwyz::Utils::global_write_string(hwyz::global_key_t::CURRENT_ICCID, new_iccid);
+    }
+    std::string new_battery_pack_sn;
+    if (!get_battery_pack_sn(new_battery_pack_sn)) {
+        spdlog::error("获取电池包序列号失败");
+        return false;
+    }
+    std::string old_battery_pack_sn = hwyz::Utils::global_read_string(hwyz::global_key_t::BATTERY_PACK_SN);
+    if (old_battery_pack_sn.empty() || old_battery_pack_sn != new_battery_pack_sn) {
+        if (!old_battery_pack_sn.empty() && old_battery_pack_sn != new_battery_pack_sn) {
+            spdlog::warn("电池包序列号发生变更[{}->{}]", old_battery_pack_sn, new_battery_pack_sn);
+        }
+        hwyz::Utils::global_write_string(hwyz::global_key_t::BATTERY_PACK_SN, new_battery_pack_sn);
     }
     std::string new_tbox_sn;
     if (!get_tbox_sn(new_tbox_sn)) {
@@ -50,19 +71,19 @@ bool McuClient::init() {
     }
     std::string old_tbox_sn = hwyz::Utils::global_read_string(hwyz::global_key_t::TBOX_SN);
     if (old_tbox_sn.empty() || old_tbox_sn != new_tbox_sn) {
-        if (old_tbox_sn != new_tbox_sn) {
+        if (!old_tbox_sn.empty() && old_tbox_sn != new_tbox_sn) {
             spdlog::warn("TBox序列号发生变更[{}->{}]", old_tbox_sn, new_tbox_sn);
         }
         hwyz::Utils::global_write_string(hwyz::global_key_t::TBOX_SN, new_tbox_sn);
     }
-    std::string new_mcu_version;
-    if (!get_mcu_version(new_mcu_version)) {
-        spdlog::error("获取MCU版本失败");
+    std::string new_tbox_mcu_version;
+    if (!get_tbox_mcu_version(new_tbox_mcu_version)) {
+        spdlog::error("获取TBox MCU版本失败");
         return false;
     }
-    std::string old_mcu_version = hwyz::Utils::global_read_string(hwyz::global_key_t::TBOX_MCU_VERSION);
-    if (old_mcu_version.empty() || old_mcu_version != new_mcu_version) {
-        hwyz::Utils::global_write_string(hwyz::global_key_t::TBOX_MCU_VERSION, new_mcu_version);
+    std::string old_tbox_mcu_version = hwyz::Utils::global_read_string(hwyz::global_key_t::TBOX_MCU_VERSION);
+    if (old_tbox_mcu_version.empty() || old_tbox_mcu_version != new_tbox_mcu_version) {
+        hwyz::Utils::global_write_string(hwyz::global_key_t::TBOX_MCU_VERSION, new_tbox_mcu_version);
     }
     return true;
 }

@@ -208,14 +208,26 @@ bool get_vin(std::string &vin) {
     return true;
 }
 
+bool get_current_iccid(std::string &iccid) {
+    spdlog::info("模拟返回当前ICCID");
+    iccid = "89860923790000000001";
+    return true;
+}
+
+bool get_battery_pack_sn(std::string &battery_pack_sn) {
+    spdlog::info("模拟返回电池包序列号");
+    battery_pack_sn = "19000000XXYY000001";
+    return true;
+}
+
 bool get_tbox_sn(std::string &tbox_sn) {
     spdlog::info("模拟返回TBox序列号");
     tbox_sn = "18100000XXYY000001";
     return true;
 }
 
-bool get_mcu_version(std::string &version) {
-    spdlog::info("模拟返回MCU版本");
+bool get_tbox_mcu_version(std::string &version) {
+    spdlog::info("模拟返回TBox MCU版本");
     version = "v1.0.0";
     return true;
 }

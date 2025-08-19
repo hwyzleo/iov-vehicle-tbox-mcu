@@ -29,6 +29,20 @@ bool init_mcu_communication_module();
 bool get_vin(std::string &vin);
 
 /**
+ * 获取当前ICCID
+ * @param iccid ICCID
+ * @return 是否成功
+ */
+bool get_current_iccid(std::string &iccid);
+
+/**
+ * 获取电池包序列号
+ * @param battery_pack_sn 电池包序列号
+ * @return 是否成功
+ */
+bool get_battery_pack_sn(std::string &battery_pack_sn);
+
+/**
  * 获取TBox序列号
  * @param tbox_sn TBox序列号
  * @return 是否成功
@@ -36,11 +50,11 @@ bool get_vin(std::string &vin);
 bool get_tbox_sn(std::string &tbox_sn);
 
 /**
- * 获取MCU版本
+ * 获取TBox MCU版本
  * @param version MCU版本
  * @return 是否成功
  */
-bool get_mcu_version(std::string &version);
+bool get_tbox_mcu_version(std::string &version);
 
 /**
  * 接收MCU消息回调
