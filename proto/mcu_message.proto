@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package tbox.mcu.v1;
+
+// MCU消息
+message McuMessage {
+    uint32 message_type = 1; // 消息类型
+    bytes message_data = 2; // 消息数据
+}
