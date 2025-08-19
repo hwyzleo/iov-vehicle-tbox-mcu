@@ -46,7 +46,10 @@ bool MqttClient::load_config(const YAML::Node &config) {
             username_ = config["mqtt"]["username"].as<std::string>();
         }
         if (config["mqtt"]["password"]) {
-            username_ = config["mqtt"]["password"].as<std::string>();
+            password_ = config["mqtt"]["password"].as<std::string>();
+        }
+        if (config["mqtt"]["client-id"]) {
+            client_id_ = config["mqtt"]["client-id"].as<std::string>();
         }
     }
     return true;
