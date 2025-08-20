@@ -25,13 +25,11 @@ MqttClient &MqttClient::get_instance() {
 bool MqttClient::load_config(const YAML::Node &config) {
     spdlog::info("加载MQTT客户端配置信息");
     if (config["mqtt"]) {
-        if (config["mqtt"]["server"]) {
-            if (config["mqtt"]["server"]["host"]) {
-                server_host_ = config["mqtt"]["server"]["host"].as<std::string>();
-            }
-            if (config["mqtt"]["server"]["port"]) {
-                server_port_ = config["mqtt"]["server"]["port"].as<std::uint16_t>();
-            }
+        if (config["mqtt"]["host"]) {
+            server_host_ = config["mqtt"]["host"].as<std::string>();
+        }
+        if (config["mqtt"]["port"]) {
+            server_port_ = config["mqtt"]["port"].as<std::uint16_t>();
         }
         if (config["mqtt"]["keepalive"]) {
             keepalive_ = config["mqtt"]["keepalive"].as<std::uint16_t>();
