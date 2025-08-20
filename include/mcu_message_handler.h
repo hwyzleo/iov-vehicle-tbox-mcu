@@ -2,8 +2,8 @@
 // Created by hwyz_leo on 2025/8/11.
 //
 
-#ifndef MCUSERVICE_MESSAGE_HANDLER_H
-#define MCUSERVICE_MESSAGE_HANDLER_H
+#ifndef MCUSERVICE_MCU_MESSAGE_HANDLER_H
+#define MCUSERVICE_MCU_MESSAGE_HANDLER_H
 #include <memory>
 
 #include "mcu_message.pb.h"
@@ -19,4 +19,4 @@ public:
     virtual ~McuMessageHandler() = default;
 };
 
-#endif //MCUSERVICE_MESSAGE_HANDLER_H
+#endif //MCUSERVICE_MCU_MESSAGE_HANDLER_H
