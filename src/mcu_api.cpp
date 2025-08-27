@@ -40,6 +40,7 @@ std::string package_rsms_data() {
     thread_local static std::uniform_int_distribution<int> latitude(22000000, 39000000);
     thread_local static std::uniform_int_distribution<int> cell_voltage(4040, 4066);
     thread_local static std::uniform_int_distribution<int> cell_temperature(76, 78);
+    thread_local static std::uniform_int_distribution<int> alarm_level(0, 100);
 
     tbox::mcu::rsms::v1::RsmsData rsms_data;
 
@@ -163,7 +164,16 @@ std::string package_rsms_data() {
     extremum->set_min_temperature(min_temperature);
 
     tbox::mcu::rsms::v1::Alarm *alarm = rsms_data.mutable_alarm();
-    alarm->set_max_alarm_level(0);
+    int level = alarm_level(gen);
+    if (level > 90) {
+        alarm->set_max_alarm_level(3);
+    } else if (level > 70) {
+        alarm->set_max_alarm_level(2);
+    } else if (level > 50) {
+        alarm->set_max_alarm_level(1);
+    } else {
+        alarm->set_max_alarm_level(0);
+    }
     alarm->set_alarm_flag(0);
     alarm->set_battery_fault_count(0);
     alarm->set_drive_motor_fault_count(0);
