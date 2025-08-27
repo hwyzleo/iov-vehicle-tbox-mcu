@@ -71,7 +71,6 @@ std::string package_rsms_data() {
     vehicle_data->set_gear(14); // 默认D挡
     vehicle_data->set_insulation_resistance(4333); // 默认4333
     vehicle_data->set_accelerator_pedal_position(accelerator_pedal_position_value); // 0～100随机值
-    vehicle_data->set_brake_pedal_position(brake_pedal_position(gen)); // 0～100随机值
 
     tbox::mcu::rsms::v1::DriveMotor *drive_motor = rsms_data.mutable_drive_motor();
     drive_motor->set_drive_motor_count(2); // 默认2个电机
@@ -101,19 +100,67 @@ std::string package_rsms_data() {
     position->set_longitude(longitude(gen)); // 默认经度随机
     position->set_latitude(latitude(gen)); // 默认纬度随机
 
+    tbox::mcu::rsms::v1::BatteryVoltage *battery_voltage = rsms_data.mutable_battery_voltage();
+    battery_voltage->set_battery_count(1);
+    auto single_battery_voltage = battery_voltage->add_battery_voltage_list();
+    single_battery_voltage->set_sn(1);
+    single_battery_voltage->set_voltage(3893);
+    single_battery_voltage->set_current(19974);
+    single_battery_voltage->set_cell_count(16);
+    single_battery_voltage->set_frame_start_cell_sn(1);
+    single_battery_voltage->set_frame_cell_count(16);
+    int max_voltage_cell_no = 0;
+    int min_voltage_cell_no = 0;
+    int cell_max_voltage = 0;
+    int cell_min_voltage = 0;
+    for (int i = 0; i < 16; i++) {
+        int tmp_voltage = cell_voltage(gen);
+        single_battery_voltage->add_cell_voltage_list(tmp_voltage);
+        if (tmp_voltage > cell_max_voltage) {
+            max_voltage_cell_no = i + 1;
+            cell_max_voltage = tmp_voltage;
+        }
+        if (cell_min_voltage == 0 || tmp_voltage < cell_min_voltage) {
+            min_voltage_cell_no = i + 1;
+            cell_min_voltage = tmp_voltage;
+        }
+    }
+
+    tbox::mcu::rsms::v1::BatteryTemperature *battery_temperature = rsms_data.mutable_battery_temperature();
+    battery_temperature->set_battery_count(1);
+    auto single_battery_temperature = battery_temperature->add_battery_temperature_list();
+    single_battery_temperature->set_sn(1);
+    single_battery_temperature->set_probe_count(15);
+    int max_temperature_probe_no = 0;
+    int min_temperature_probe_no = 0;
+    int max_temperature = 0;
+    int min_temperature = 0;
+    for (int i = 0; i < 15; i++) {
+        int tmp_temperature = cell_temperature(gen);
+        single_battery_temperature->add_temperatures(tmp_temperature);
+        if (tmp_temperature > max_temperature) {
+            max_temperature_probe_no = i + 1;
+            max_temperature = tmp_temperature;
+        }
+        if (min_temperature == 0 || tmp_temperature < min_temperature) {
+            min_temperature_probe_no = i + 1;
+            min_temperature = tmp_temperature;
+        }
+    }
+
     tbox::mcu::rsms::v1::Extremum *extremum = rsms_data.mutable_extremum();
     extremum->set_max_voltage_battery_device_no(1);
-    extremum->set_max_voltage_cell_no(68);
-    extremum->set_cell_max_voltage(4066);
+    extremum->set_max_voltage_cell_no(max_voltage_cell_no);
+    extremum->set_cell_max_voltage(cell_max_voltage);
     extremum->set_min_voltage_battery_device_no(1);
-    extremum->set_min_voltage_cell_no(17);
-    extremum->set_cell_min_voltage(4040);
+    extremum->set_min_voltage_cell_no(min_voltage_cell_no);
+    extremum->set_cell_min_voltage(cell_min_voltage);
     extremum->set_max_temperature_device_no(1);
-    extremum->set_max_temperature_probe_no(2);
-    extremum->set_max_temperature(78);
+    extremum->set_max_temperature_probe_no(max_temperature_probe_no);
+    extremum->set_max_temperature(max_temperature);
     extremum->set_min_temperature_device_no(1);
-    extremum->set_min_temperature_probe_no(11);
-    extremum->set_min_temperature(76);
+    extremum->set_min_temperature_probe_no(min_temperature_probe_no);
+    extremum->set_min_temperature(min_temperature);
 
     tbox::mcu::rsms::v1::Alarm *alarm = rsms_data.mutable_alarm();
     alarm->set_max_alarm_level(0);
@@ -122,28 +169,6 @@ std::string package_rsms_data() {
     alarm->set_drive_motor_fault_count(0);
     alarm->set_engine_fault_count(0);
     alarm->set_other_fault_count(0);
-
-    tbox::mcu::rsms::v1::BatteryVoltage *battery_voltage = rsms_data.mutable_battery_voltage();
-    battery_voltage->set_battery_count(1);
-    auto single_battery_voltage = battery_voltage->add_battery_voltage_list();
-    single_battery_voltage->set_sn(1);
-    single_battery_voltage->set_voltage(3893);
-    single_battery_voltage->set_current(19974);
-    single_battery_voltage->set_cell_count(96);
-    single_battery_voltage->set_frame_start_cell_sn(1);
-    single_battery_voltage->set_frame_cell_count(96);
-    for (int i = 0; i < 96; i++) {
-        single_battery_voltage->add_cell_voltage_list(cell_voltage(gen));
-    }
-
-    tbox::mcu::rsms::v1::BatteryTemperature *battery_temperature = rsms_data.mutable_battery_temperature();
-    battery_temperature->set_battery_count(1);
-    auto single_battery_temperature = battery_temperature->add_battery_temperature_list();
-    single_battery_temperature->set_sn(1);
-    single_battery_temperature->set_probe_count(15);
-    for (int i = 0; i < 15; i++) {
-        single_battery_temperature->add_temperatures(cell_temperature(gen));
-    }
 
     return rsms_data.SerializeAsString();
 }
