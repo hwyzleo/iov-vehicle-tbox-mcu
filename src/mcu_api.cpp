@@ -165,16 +165,19 @@ std::string package_rsms_data() {
 
     tbox::mcu::rsms::v1::Alarm *alarm = rsms_data.mutable_alarm();
     int level = alarm_level(gen);
-    if (level > 90) {
+    if (level > 98) {
         alarm->set_max_alarm_level(3);
-    } else if (level > 70) {
+        alarm->set_alarm_flag(1); // 模拟温度差异报警
+    } else if (level > 80) {
         alarm->set_max_alarm_level(2);
-    } else if (level > 50) {
+        alarm->set_alarm_flag(8); // 模拟车载储能装置类型欠压报警
+    } else if (level > 60) {
         alarm->set_max_alarm_level(1);
+        alarm->set_alarm_flag(16); // 模拟SOC低报警
     } else {
         alarm->set_max_alarm_level(0);
+        alarm->set_alarm_flag(0);
     }
-    alarm->set_alarm_flag(0);
     alarm->set_battery_fault_count(0);
     alarm->set_drive_motor_fault_count(0);
     alarm->set_engine_fault_count(0);
