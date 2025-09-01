@@ -27,7 +27,6 @@ std::string package_rsms_data() {
     thread_local static std::random_device rd;
     thread_local static std::mt19937 gen(rd());
     thread_local static std::uniform_int_distribution<int> speed_dist(0, 1000);
-    thread_local static std::uniform_int_distribution<int> total_voltage(3878, 3898);
     thread_local static std::uniform_int_distribution<int> total_current(950, 1000);
     thread_local static std::uniform_int_distribution<int> accelerator_pedal_position(0, 100);
     thread_local static std::uniform_int_distribution<int> brake_pedal_position(0, 100);
@@ -44,6 +43,35 @@ std::string package_rsms_data() {
 
     tbox::mcu::rsms::v1::RsmsData rsms_data;
 
+    tbox::mcu::rsms::v1::BatteryVoltage *battery_voltage = rsms_data.mutable_battery_voltage();
+    battery_voltage->set_battery_count(1);
+    auto single_battery_voltage = battery_voltage->add_battery_voltage_list();
+    int cell_count = 16;
+    single_battery_voltage->set_sn(1);
+    single_battery_voltage->set_current(19974);
+    single_battery_voltage->set_cell_count(cell_count);
+    single_battery_voltage->set_frame_start_cell_sn(1);
+    single_battery_voltage->set_frame_cell_count(cell_count);
+    int max_voltage_cell_no = 0;
+    int min_voltage_cell_no = 0;
+    int cell_max_voltage = 0;
+    int cell_min_voltage = 0;
+    int total_cell_voltage = 0;
+    for (int i = 0; i < cell_count; i++) {
+        int tmp_voltage = cell_voltage(gen);
+        total_cell_voltage += tmp_voltage;
+        single_battery_voltage->add_cell_voltage_list(tmp_voltage);
+        if (tmp_voltage > cell_max_voltage) {
+            max_voltage_cell_no = i + 1;
+            cell_max_voltage = tmp_voltage;
+        }
+        if (cell_min_voltage == 0 || tmp_voltage < cell_min_voltage) {
+            min_voltage_cell_no = i + 1;
+            cell_min_voltage = tmp_voltage;
+        }
+    }
+    single_battery_voltage->set_voltage(total_cell_voltage / 100);
+
     tbox::mcu::rsms::v1::VehicleData *vehicle_data = rsms_data.mutable_vehicle_data();
     int accelerator_pedal_position_value = accelerator_pedal_position(gen);
     vehicle_data->set_vehicle_state(1); // 默认启动状态才传国标
@@ -51,7 +79,7 @@ std::string package_rsms_data() {
     vehicle_data->set_running_mode(1); // 默认纯电
     vehicle_data->set_speed(speed_dist(gen)); // 0～1000随机值
     vehicle_data->set_total_odometer(100); // 先默认100
-    vehicle_data->set_total_voltage(total_voltage(gen)); // 3878~3898随机值
+    vehicle_data->set_total_voltage(total_cell_voltage / 100);
     vehicle_data->set_total_current(total_current(gen)); // 950~1000随机值
     vehicle_data->set_soc(100); // 先默认100
     vehicle_data->set_dcdc_state(1); // 默认工作状态
@@ -100,32 +128,6 @@ std::string package_rsms_data() {
     position->set_west_longitude(false); // 默认东经
     position->set_longitude(longitude(gen)); // 默认经度随机
     position->set_latitude(latitude(gen)); // 默认纬度随机
-
-    tbox::mcu::rsms::v1::BatteryVoltage *battery_voltage = rsms_data.mutable_battery_voltage();
-    battery_voltage->set_battery_count(1);
-    auto single_battery_voltage = battery_voltage->add_battery_voltage_list();
-    single_battery_voltage->set_sn(1);
-    single_battery_voltage->set_voltage(3893);
-    single_battery_voltage->set_current(19974);
-    single_battery_voltage->set_cell_count(16);
-    single_battery_voltage->set_frame_start_cell_sn(1);
-    single_battery_voltage->set_frame_cell_count(16);
-    int max_voltage_cell_no = 0;
-    int min_voltage_cell_no = 0;
-    int cell_max_voltage = 0;
-    int cell_min_voltage = 0;
-    for (int i = 0; i < 16; i++) {
-        int tmp_voltage = cell_voltage(gen);
-        single_battery_voltage->add_cell_voltage_list(tmp_voltage);
-        if (tmp_voltage > cell_max_voltage) {
-            max_voltage_cell_no = i + 1;
-            cell_max_voltage = tmp_voltage;
-        }
-        if (cell_min_voltage == 0 || tmp_voltage < cell_min_voltage) {
-            min_voltage_cell_no = i + 1;
-            cell_min_voltage = tmp_voltage;
-        }
-    }
 
     tbox::mcu::rsms::v1::BatteryTemperature *battery_temperature = rsms_data.mutable_battery_temperature();
     battery_temperature->set_battery_count(1);
